@@ -14,28 +14,45 @@ Go言語、Docker、AWS CLI、AWS CDK CLI、Gemini CLIの準備を行います�
 
 ### 1.1. Go言語のインストール
 
-最新のLTSバージョン（例: Go 1.21.x）を推奨します。環境構築を必要最低限に抑えるため、公式インストーラまたは`goenv`などのバージョン管理ツールを利用します。
+Homebrewを使用してGo言語をインストールします。最新のLTSバージョンがインストールされます。
 
-1.  **公式インストーラ**: Goの公式サイトからOSに合ったインストーラをダウンロードし、指示に従ってインストールします。
-2.  **goenv (推奨)**: 複数のGoバージョンを管理する場合に便利です。
-    ```bash
-    git clone https://github.com/go-nv/goenv.git ~/.goenv
-    echo 'export PATH="$HOME/.goenv/bin:$PATH"' >> ~/.bash_profile # または ~/.zshrc
-    echo 'eval "$(goenv init -)"' >> ~/.bash_profile # または ~/.zshrc
-    source ~/.bash_profile # または ~/.zshrc
+```bash
+brew install go
+go version
+```
 
-    goenv install latest
-    goenv global latest
-    go version
-    ```
+### 1.2. AWSアカウントとIAMユーザーの作成
 
-### 1.2. Dockerのインストール
+本ハンズオンではAWSリソースを操作するため、AWSアカウントが必要です。
+
+1.  **AWSアカウントの作成**:
+    *   [AWS公式サイト](https://aws.amazon.com/jp/)にアクセスし、画面の指示に従ってアカウントを作成します。
+    *   クレジットカードの登録が必要ですが、本ハンズオンで利用するサービスは無料利用枠の範囲内です。
+    *   アカウント作成後、まずは**ルートユーザー**（登録したメールアドレスとパスワード）でAWSマネジメントコンソールにサインインします。
+
+2.  **IAMユーザーの作成**:
+    *   日常的な開発作業をルートユーザーで行うことは推奨されません。代わりに、管理者権限を持つIAMユーザーを作成します。
+    *   [IAMコンソール](https://console.aws.amazon.com/iam/)にアクセスします。
+    *   左側のナビゲーションペインで **[ユーザー]** を選択し、**[ユーザーを追加]** をクリックします。
+    *   **ユーザー名**（例: `handson-admin`）を入力し、**[AWS マネジメントコンソールへのアクセス]** にチェックを入れます。
+    *   **[次のステップ: 許可]** をクリックします。
+    *   **[既存のポリシーを直接アタッチ]** を選択し、ポリシーの一覧から `AdministratorAccess` を検索してチェックを入れます。
+    *   **[次のステップ: タグ]**、**[次のステップ: レビュー]** と進み、内容を確認して **[ユーザーの作成]** をクリックします。
+
+3.  **アクセスキーの作成**:
+    *   作成したIAMユーザーの詳細画面を開き、**[認証情報]** タブを選択します。
+    *   **[アクセスキーの作成]** をクリックし、ユースケースとして **[コマンドラインインターフェイス (CLI)]** を選択します。
+    *   確認のチェックボックスにチェックを入れ、**[次のステップ]** をクリックします。
+    *   **[アクセスキーを作成]** をクリックすると、**アクセスキーID**と**シークレットアクセスキー**が表示されます。
+    *   **重要**: この画面を閉じるとシークレットアクセスキーは二度と表示できません。必ず `.csv` ファイルをダウンロードするか、表示されたキーを安全な場所にコピーして保存してください。このキーは後の `aws configure` で使用します。
+
+### 1.3. Dockerのインストール
 
 MinIOおよびDynamoDB LocalをローカルでエミュレートするためにDockerを使用します。Docker Desktopを公式サイトからダウンロードし、インストールしてください。
 
 *   [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-### 1.3. AWS CLIのインストールと初期設定
+### 1.4. AWS CLIのインストールと初期設定
 
 AWSリソースの手動操作や、AWS CDKの認証情報としてAWS CLIを使用します。
 
@@ -45,12 +62,12 @@ AWSリソースの手動操作や、AWS CDKの認証情報としてAWS CLIを使
     ```bash
     aws configure
     ```
-    *   `AWS Access Key ID`: AWSアカウントのアクセスキーIDを入力
-    *   `AWS Secret Access Key`: AWSアカウントのシークレットアクセスキーIDを入力
+    *   `AWS Access Key ID`: 先ほど作成したIAMユーザーのアクセスキーIDを入力
+    *   `AWS Secret Access Key`: 先ほど作成したIAMユーザーのシークレットアクセスキーを入力
     *   `Default region name`: `ap-northeast-1`など、使用するAWSリージョンを入力
     *   `Default output format`: `json`を入力
 
-### 1.4. AWS CDK CLIのインストール
+### 1.5. AWS CDK CLIのインストール
 
 AWS CDK (Go) を使用してIaCを記述・デプロイするために、AWS CDK CLIをインストールします。
 
@@ -59,7 +76,7 @@ npm install -g aws-cdk
 cdk --version
 ```
 
-### 1.5. Gemini CLIのインストール
+### 1.6. Gemini CLIのインストール
 
 Gemini CLIは既にセットアップ済みです。
 
