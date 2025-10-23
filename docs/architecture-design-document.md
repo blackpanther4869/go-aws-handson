@@ -103,28 +103,28 @@ sequenceDiagram
 本システムで利用するDynamoDBのデータモデルを以下に定義する。
 
 - **テーブル名**: `ImageMetadata`
-- **プライマリキー**: `ImageID` (String)
+- **プライマリキー**: `imageID` (String)
 - **グローバルセカンダリインデックス (GSI)**:
-    - `FileName-index`: パーティションキー `FileName`
-    - `UploadTimestamp-index`: パーティションキー `UploadTimestamp`
+    - `fileName-index`: パーティションキー `fileName`
+    - `uploadTimestamp-index`: パーティションキー `uploadTimestamp`
 
 | 属性名 | データ型 | 説明 |
 |:---|:---|:---|
-| `ImageID` | String | 一意の画像ID (UUID) |
-| `FileName` | String | S3オブジェクトキー |
-| `FileSize` | Number | ファイルサイズ (bytes) |
-| `UploadTimestamp` | String | アップロード日時 (ISO 8601) |
-| `Make` | String | カメラメーカー |
-| `Model` | String | カメラモデル |
-| `DateTimeOriginal` | String | 撮影日時 (ISO 8601) |
-| `ExposureTime` | String | 露出時間 |
-| `FNumber` | String | F値 |
-| `ISOSpeedRatings` | Number | ISO感度 |
-| `FocalLength` | String | 焦点距離 |
-| `GPSLatitude` | Number | GPS緯度 |
-| `GPSLongitude` | Number | GPS経度 |
-| `GPSAltitude` | Number | GPS高度 |
-| `Orientation` | Number | 画像の向き |
+| `imageID` | String | 一意の画像ID (UUID) |
+| `fileName` | String | S3オブジェクトキー |
+| `fileSize` | Number | ファイルサイズ (bytes) |
+| `uploadTimestamp` | String | アップロード日時 (ISO 8601) |
+| `manufacturer` | String | カメラメーカー |
+| `model` | String | カメラモデル |
+| `dateTimeOriginal` | String | 撮影日時 (ISO 8601) |
+| `exposureTime` | String | 露出時間 |
+| `fNumber` | String | F値 |
+| `isoSpeedRatings` | Number | ISO感度 |
+| `focalLength` | String | 焦点距離 |
+| `gpsLatitude` | Number | GPS緯度 |
+| `gpsLongitude` | Number | GPS経度 |
+| `gpsAltitude` | Number | GPS高度 |
+| `orientation` | Number | 画像の向き |
 
 ## 6. コンポーネント仕様
 
