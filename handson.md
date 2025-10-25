@@ -130,6 +130,116 @@ docker-compose up -d
 *   MinIO Console: `http://localhost:9001` (ユーザー: `minioadmin`, パスワード: `minioadmin`)
 *   DynamoDB Local: `http://localhost:8000` (AWS CLIなどでアクセス)
 
+### 2.3. ローカルエミュレータの動作確認
+
+AWS CLIを使用して、各エミュレータが正常に動作していることを確認します。
+
+ローカルエミュレータへのアクセスには、`--endpoint-url`の指定が必要です。また、AWSアカウントの認証情報が誤って使われるのを防ぐため、コマンド実行時に環境変数を指定して、各エミュレータ用のダミーの認証情報を渡すのが安全です。
+
+#### 2.3.1. MinIO (S3) の動作確認
+
+MinIOには、`docker-compose.yml`で設定したユーザー(`minioadmin`)とパスワード(`minioadmin`)を環境変数で指定します。
+
+1.  **バケットの作成 (`mb`)**
+
+    ```bash
+    AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin \
+    aws s3 mb s3://test-bucket --endpoint-url http://localhost:9000
+    ```
+
+2.  **テストファイルの作成とアップロード (`cp`)**
+
+    ```bash
+    # テスト用のファイルを作成
+    echo "hello minio" > dummy.txt
+
+    # 作成したファイルを test-bucket にアップロード
+    AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin \
+    aws s3 cp dummy.txt s3://test-bucket/ --endpoint-url http://localhost:9000
+    ```
+
+3.  **ファイル一覧の確認 (`ls`)**
+
+    ```bash
+    # test-bucket の中身を一覧表示
+    AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin \
+    aws s3 ls s3://test-bucket/ --endpoint-url http://localhost:9000
+    ```
+
+    `dummy.txt`が表示されれば、アップロードは成功しています。
+
+#### 2.3.2. DynamoDB Local の動作確認
+
+DynamoDB Localは認証を検証しませんが、AWS CLIは認証情報とリージョンを要求します。そのため、ダミーの認証情報と任意のリージョン（例: `us-east-1`）を指定します。
+
+1.  **テスト用のテーブル定義ファイルを作成**
+
+    プロジェクトのルートに `test-table.json` という名前で以下のファイルを作成します。
+
+    **`test-table.json`**
+    ```json
+    {
+        "TableName": "TestTable",
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "id",
+                "AttributeType": "S"
+            }
+        ],
+        "KeySchema": [
+            {
+                "AttributeName": "id",
+                "KeyType": "HASH"
+            }
+        ],
+        "ProvisionedThroughput": {
+            "ReadCapacityUnits": 1,
+            "WriteCapacityUnits": 1
+        }
+    }
+    ```
+
+2.  **テーブルの作成 (`create-table`)**
+
+    ```bash
+    AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
+    aws dynamodb create-table \
+        --cli-input-json file://test-table.json \
+        --endpoint-url http://localhost:8000 \
+        --region us-east-1
+    ```
+
+3.  **テーブル一覧の確認 (`list-tables`)**
+
+    ```bash
+    AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
+    aws dynamodb list-tables --endpoint-url http://localhost:8000 --region us-east-1
+    ```
+    `"TableNames": ["TestTable"]` と表示されれば成功です。
+
+4.  **データの追加 (`put-item`)**
+
+    ```bash
+    AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
+    aws dynamodb put-item \
+        --table-name TestTable \
+        --item '{"id": {"S": "test-id-1"}, "message": {"S": "Hello, DynamoDB Local!"}}' \
+        --endpoint-url http://localhost:8000 \
+        --region us-east-1
+    ```
+
+5.  **データの確認 (`get-item`)**
+
+    ```bash
+    AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
+    aws dynamodb get-item \
+        --table-name TestTable \
+        --key '{"id": {"S": "test-id-1"}}' \
+        --endpoint-url http://localhost:8000 \
+        --region us-east-1
+    ```
+    追加したデータが表示されれば、DynamoDB Localも正常に動作しています。
+
 ## 3. Goプロジェクトの初期化とフォルダ構成
 
 Goのベストプラクティス (`cmd`, `internal`, `pkg`) に従ったプロジェクト構造を作成します。
