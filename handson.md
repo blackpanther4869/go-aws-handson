@@ -412,9 +412,9 @@ func Extract(r io.Reader) (*Metadata, error) {
 package exif
 
 import (
-	"os"
+	os
 	"path/filepath"
-	"testing"
+	testing
 
 	"github.com/stretchr/testify/assert"
 )
@@ -496,7 +496,7 @@ import (
 	"fmt"
 	"io"
 	// "log" // 標準のlogパッケージは削除
-	"os"
+	os
 	time
 
 	"github.com/dsoprea/go-exif/v3"
@@ -535,7 +535,7 @@ func init() {
 		return &Metadata{}, nil
 	}
 // ...
-	visitor := func(ifd *exif.Ifd, ite *exif.IfdTagEntry) error {
+	vizitor := func(ifd *exif.Ifd, ite *exif.IfdTagEntry) error {
 		log.Printf("[DEBUG] Found tag: Name=[%s]", ite.TagName())
 // ...
 ```
@@ -549,7 +549,7 @@ func init() {
 		return &Metadata{}, nil
 	}
 // ...
-	visitor := func(ifd *exif.Ifd, ite *exif.IfdTagEntry) error {
+	vizitor := func(ifd *exif.Ifd, ite *exif.IfdTagEntry) error {
 		logrus.Debugf("Found tag: Name=[%s]", ite.TagName())
 // ...
 ```
